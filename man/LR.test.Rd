@@ -5,7 +5,7 @@
 \title{Log-rank based test for the validity of the Markov assumption.}
 \usage{
 LR.test(
-  db_long = db_long,
+  data,
   times = times,
   from,
   to,
@@ -19,7 +19,7 @@ LR.test(
 )
 }
 \arguments{
-\item{db_long}{Multi-state data in \code{msdata} format. Should also contain
+\item{data}{Multi-state data in \code{msdata} format. Should also contain
 (dummy codings of) the relevant covariates; no factors allowed.}
 
 \item{times}{Grid of time points at which to compute the statistic.}
@@ -62,6 +62,7 @@ Function LR.test performs the log-rank test described in
 Titman & Putter (2020).
 }
 \examples{
+\donttest{
 set.seed(1234)
 library(markovMSM)
 data("colonMSM")
@@ -72,16 +73,15 @@ timesNames = c(NA, "time1","Stime")
 status=c(NA, "event1","event")
 trans = tmat
 db_long<- prepMSM(data=colonMSM, trans, timesNames, status)
-\donttest{
-res<-LR.test(db_long=db_long, times=180, from = 2, to = 3, replicas = 1000)
+res<-LR.test(data=db_long, times=180, from = 2, to = 3, replicas = 1000)
 res$globalTestLR
 
 times<-c(73.5, 117, 223, 392, 681)
-res2<-LR.test(db_long=prothr, times=times, from = 2, to = 3, replicas = 1000)
+res2<-LR.test(data=prothr, times=times, from = 2, to = 3, replicas = 1000)
 res2$localTestLR
 res2$globalTestLR
 
-res3<-LR.test(db_long=prothr, times=times, from = 2, to = 1, replicas = 1000)
+res3<-LR.test(data=prothr, times=times, from = 2, to = 1, replicas = 1000)
 res3$localTestLR
 res3$globalTestLR
 }

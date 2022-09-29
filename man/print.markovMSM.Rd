@@ -29,11 +29,13 @@ tmat <-transMatMSM(positions, namesStates)
 timesNames = c(NA, "time1","Stime")
 status=c(NA, "event1","event")
 trans = tmat
+\donttest{
 db_long<- prepMSM(data=db_wide, trans, timesNames, status)
 times=365
-res<-AUC.test(db_long, db_wide, times=times, from=2, to=3, type='local', 
+res<-AUC.test(data = db_long, times=times, from=2, to=3, type='local', 
 replicas=2, tmat = tmat)
 print(res)
+}
 
 }
 \references{

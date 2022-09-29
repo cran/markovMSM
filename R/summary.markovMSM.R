@@ -26,8 +26,8 @@
 #' db_long<- prepMSM(data=db_wide, trans, timesNames, status)
 #' times=365
 #' \donttest{
-#' res<-AUC.test(db_long, db_wide, times=times, from=2, to=3, type='local', 
-#' replicas=10, tmat = tmat)
+#' res<-AUC.test(data = db_long, times=times, from=2, to=3, type='local', 
+#' replicas=2, tmat = tmat)
 #' res$localTest
 #' summary(res)
 #' }

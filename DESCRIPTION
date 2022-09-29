@@ -2,7 +2,7 @@ Package: markovMSM
 Type: Package
 Title: Methods for Checking the Markov Condition in Multi-State
         Survival Data
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: c(
 	person(
 		given = "Gustavo",
@@ -37,13 +37,16 @@ Description: The inference in multi-state models is traditionally performed unde
 License: GPL-3
 Depends: R (>= 3.5.0)
 Imports: survidm, survival, mstate
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.1
 Encoding: UTF-8
-LazyData: true
-NeedsCompilation: no
-Packaged: 2021-11-11 21:42:21 UTC; asus
+LazyLoad: yes
+LazyData: yes
+NeedsCompilation: yes
+Suggests: rmarkdown, knitr
+VignetteBuilder: knitr
+Packaged: 2022-09-29 19:37:59 UTC; asus
 Author: Gustavo Soutinho [aut, cre] (<https://orcid.org/0000-0002-0559-1327>),
   Luis Meira-Machado [aut] (<https://orcid.org/0000-0002-8577-7665>)
 Maintainer: Gustavo Soutinho <gustavosoutinho@sapo.pt>
 Repository: CRAN
-Date/Publication: 2021-11-23 08:40:05 UTC
+Date/Publication: 2022-09-29 20:00:09 UTC

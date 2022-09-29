@@ -1,7 +1,7 @@
 #' Log-rank based test for the validity of the Markov assumption.
 #' @description  Function LR.test performs the log-rank test described in
 #' Titman & Putter (2020). 
-#' @param db_long Multi-state data in \code{msdata} format. Should also contain
+#' @param data Multi-state data in \code{msdata} format. Should also contain
 #' (dummy codings of) the relevant covariates; no factors allowed.
 #' @param times Grid of time points at which to compute the statistic.
 #' @param from The starting state of the transition to check the Markov 
@@ -29,6 +29,7 @@
 #' @references Titman AC, Putter H (2020). General tests of the Markov property
 #' in multi-state models. \emph{Biostatistics}.
 #' @examples
+#' \donttest{
 #' set.seed(1234)
 #' library(markovMSM)
 #' data("colonMSM")
@@ -39,16 +40,15 @@
 #' status=c(NA, "event1","event")
 #' trans = tmat
 #' db_long<- prepMSM(data=colonMSM, trans, timesNames, status)
-#' \donttest{
-#' res<-LR.test(db_long=db_long, times=180, from = 2, to = 3, replicas = 1000)
+#' res<-LR.test(data=db_long, times=180, from = 2, to = 3, replicas = 1000)
 #' res$globalTestLR
 #' 
 #' times<-c(73.5, 117, 223, 392, 681)
-#' res2<-LR.test(db_long=prothr, times=times, from = 2, to = 3, replicas = 1000)
+#' res2<-LR.test(data=prothr, times=times, from = 2, to = 3, replicas = 1000)
 #' res2$localTestLR
 #' res2$globalTestLR
 #' 
-#' res3<-LR.test(db_long=prothr, times=times, from = 2, to = 1, replicas = 1000)
+#' res3<-LR.test(data=prothr, times=times, from = 2, to = 1, replicas = 1000)
 #' res3$localTestLR
 #' res3$globalTestLR
 #' }
@@ -56,16 +56,24 @@
 #' 
 #' @export LR.test
 
-LR.test<-function(db_long=db_long, times=times, from, to, replicas = 1000, formula = NULL,
+LR.test<-function(data, times=times, from, to, replicas = 1000, formula = NULL,
                    fn = list(function(x) mean(abs(x), na.rm = TRUE)),
                    fn2 = list(function(x) mean(x, na.rm = TRUE)),
                    min_time = 0,
                    other_weights = NULL,
                    dist = c("poisson", "normal")){
   
+  
+  db_long<-data
+  
+  if (class(db_long)[1]!="msdata")
+    stop("Argument 'data' must be a mstate object")
+  
   transition<-unique(db_long[db_long$from==from & db_long$to==to,'trans'])
   
-  MT <- MarkovTest(data=db_long, id = "id", transition = transition, grid = times,  B = replicas)
+  MT <- suppressWarnings(MarkovTest(data=db_long, id = "id", 
+                                    transition = transition, grid = times,  
+                                    B = replicas))
   
   #MT$obs_chisq_trace 
   #MT$qualset
@@ -83,6 +91,8 @@ LR.test<-function(db_long=db_long, times=times, from, to, replicas = 1000, formu
 
   res$call <- match.call()
   
-  return(res)
-
+  #return(res)
+  #options(warn=-1)
+  suppressWarnings(res)
+  return(invisible(res))
 }

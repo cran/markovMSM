@@ -27,13 +27,13 @@
 #' library(markovMSM)
 #' data(prothr)
 #' \donttest{
-#' res<-AUC.test(db_long=prothr, times=30, from=1, to=3, type='local', 
+#' res<-AUC.test(data=prothr, times=30, from=1, to=3, type='local', 
 #' replicas=10)
 #' 
 #' plot(res, to=3, axis.scale=c(-0.25,.25), difP=TRUE)
 #' plot(res, to=2, axis.scale=c(0,.25), difP=FALSE)
 #' 
-#' res2<-AUC.test(db_long=prothr, db_wide = NULL, from=1, to=3, 
+#' res2<-AUC.test(data=prothr, from=1, to=3, 
 #' type='global', replicas=10, limit=0.90, quantiles=c(.05, .10, .20, .30, 0.40))
 #' plot(res2, quantileOrder=3, 2, axis.scale=c(-0.05,.15))
 #' }
@@ -95,10 +95,14 @@ plot.markovMSM<- function(x = object, to=2, quantileOrder=NULL,
     y<-c(min, max)
     
     plot(df01$xt, df01$F01, type = "s", ylim=y[1:2],
-         xlab="Time (days)",
-         ylab=paste("p23(",s,",t): AJ-LMAJ", sep=""),
-         xaxt="n")
-    axis(1,xx)
+         xlab="Time (days)", ylab=paste(tran,"(", z$times, ",t)", sep=""),
+         xaxt="n", cex=1.2) #ylab=paste("p23(",s,",t): AJ-LMAJ"
+    
+    
+    #axis(1,xx)
+    
+    axis(side=1, at=seq(min(df01$xt), max(df01$xt), by=(max(df01$xt)-min(df01$xt))/5))
+    
     polygon(c(df01$xt,rev(df01$x)),c(df01$L01,rev(df01$U01)),col = "grey75", border = FALSE)
     lines(df01$xt, df01$F01, lwd = 2)
     lines(df01$xt, df01$U01, col="blue",lty=2)
@@ -129,11 +133,20 @@ plot.markovMSM<- function(x = object, to=2, quantileOrder=NULL,
     
     y<-c(min01, max01)
     
-    matplot(res[,1],res[,2:3], type="s", col=1:2, xlab="Time (days)", ylab=paste(tran,"(", z$times, ",t)", 
-                                                                                 sep = ""),
-            lty=1, ylim=y[1:2])
+
+    plot(res[,1],res[,2], type="s", col="blue", 
+            
+            xlab="Time (days)", ylab=paste(tran,"(", z$times, ",t)", sep = ""),
+            
+            lty=1, ylim=y[1:2], cex=1.2,
+         
+         xlim=c(min(z$AJall$time), max(z$AJall$time)), xaxt='n')
     
-    legend("bottomright",legend=c("AJ","LMAJ"),text.col=1:2)
+    lines(res[,1], res[,3], col="brown")
+    
+    axis(side=1, at=seq(min(z$AJall$time), max(z$AJall$time), by=(max(z$AJall$time)-min(z$AJall$time))/5))
+    
+    legend("bottomright",legend=c("AJ","LMAJ"),text.col=c("blue", "brown"))
     
   }
   
@@ -182,8 +195,13 @@ plot.markovMSM<- function(x = object, to=2, quantileOrder=NULL,
     plot(df01$xt, df01$F01, type = "s", ylim=y[1:2],
          xlab="Time (days)",
          ylab=paste("To=", tran,"(",s,",t): AJ-LM", sep=""),
-         xaxt="n")
-    axis(1,xx)
+         xaxt="n", cex=1.2)
+    
+    #axis(1,xx)
+    
+    axis(side=1, at=seq(min(df01$xt), max(df01$xt), by=(max(df01$xt)-min(df01$xt))/5))
+    
+    
     polygon(c(df01$xt,rev(df01$x)),c(df01$L01,rev(df01$U01)),col = "grey75", border = FALSE)
     lines(df01$xt, df01$F01, lwd = 2)
     lines(df01$xt, df01$U01, col="blue",lty=2)

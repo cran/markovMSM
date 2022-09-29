@@ -8,8 +8,7 @@ estimators of the transition probabilities to the Markov Aalen-Johansen
 estimators.}
 \usage{
 AUC.test(
-  db_long,
-  db_wide = NULL,
+  data,
   from = 1,
   to = 3,
   type = "global",
@@ -25,15 +24,12 @@ AUC.test(
 )
 }
 \arguments{
-\item{db_long}{A data frame in long format containing the subject \code{id};
+\item{data}{A data frame in long format containing the subject \code{id};
 \code{from} corresponding to the starting state;the receiving state, 
 \code{to}; the transition number, \code{trans}; the starting time of the
 transition given by \code{Tstart}; the stopping time of the transition, 
 \code{Tstop}, and \code{status} for the  status variable, with 1 indicating
 an event (transition), 0 a censoring.}
-
-\item{db_wide}{Data frame in wide format in which to interpret time, status,
-id or keep, if appropriate.}
 
 \item{from}{The starting state of the transition probabilities.}
 
@@ -137,6 +133,7 @@ This function is used to obtain the local and global tests for
 checking the Markov condition.
 }
 \examples{
+\donttest{
 set.seed(1234)
 library(markovMSM)
 data("colonMSM")
@@ -147,27 +144,46 @@ tmat <-transMatMSM(positions, namesStates)
 timesNames = c(NA, "time1","Stime")
 status=c(NA, "event1","event")
 trans = tmat
-\donttest{
 db_long<- prepMSM(data=db_wide, trans, timesNames, status)
-res<-AUC.test(db_long, db_wide, times=180, from=1, to=3, type='local',
-               replicas=100, tmat = tmat)
-
+res<-AUC.test(data=db_long, times=180, from=1, to=3, type='local',
+               replicas = 20, tmat = tmat)
 res$localTest
-res2<-AUC.test(db_long, db_wide, times=180, from=2, to=3, type='local',
-               replicas=100, tmat = tmat)
+res2<-AUC.test(data=db_long, times=180, from=2, to=3, type='local',
+               replicas = 20, tmat = tmat)
 res2$localTest
 
-res3<-AUC.test(db_long, db_wide, from=1, to=3, replicas = 100, tmat=tmat)
+res3<-AUC.test(data=db_long, from=1, to=3, replicas = 20, tmat=tmat)
 round(res3$globalTest,3)
 
-res4<-AUC.test(db_long, db_wide, from=2, to=3, type='global', replicas = 100,
+res4<-AUC.test(data=db_long, from=2, to=3, type='global', replicas = 20,
              tmat=tmat)
 round(res4$globalTest,3)
 
 round(res4$localTest,3)
 round(res4$localTest,3)
 
-data("ebmt4")
+#AUC global for the individuals with the treatment "Obs" of covariate `"rx"
+#for colonMSM data set
+
+set.seed(12345)
+
+db_wide.obs<-db_wide[db_wide$rx=='Obs',]
+
+db_long.obs <- prepMSM(data = db_wide.obs, trans, timesNames, status)
+
+res3a<-AUC.test(data=db_long.obs, times=365, from=1, to=3, 
+type='local', replicas= 20, tmat = tmat)
+
+res3a$localTest
+
+set.seed(12345)
+
+res4a<-AUC.test(data=db_long.obs, times=365, from=2, to=3, 
+type='local', replicas= 20, tmat = tmat)
+
+res4a$localTest
+
+#' data("ebmt4")
 db_wide <- ebmt4
 positions <- list(c(2, 3, 5, 6), c(4, 5, 6), c(4, 5, 6),
                  c(5, 6), c(), c())
@@ -180,21 +196,22 @@ trans <- tmat
 db_long <- prepMSM(data=db_wide, trans, timesNames, status)
 db_long[1:10,]
 
-res5<-AUC.test(db_long, db_wide, from=1, to=5, type='global',
+res5<-AUC.test(data=db_long, from=1, to=5, type='global',
                quantiles=c(.05, .10, .20, .30, 0.40),
-               tmat = tmat, replicas = 100,
+               tmat = tmat, replicas = 5,
                positions=positions, namesStates=state.names,
                timesNames=timesNames, status=status)
                
 round(res5$globalTest, 4)
 round(res5$localTests,4)
 
-res6<-AUC.test(db_long = prothr, db_wide = NULL, from=2, to=3,
-               type='global', replicas=100, limit=0.90,
+res6<-AUC.test(data = prothr, from=2, to=3,
+               type='global', replicas= 5, limit=0.90,
                quantiles=c(.05, .10, .20, .30, 0.40))
 round(res6$globalTest,4)
 
 round(res6$localTests,4)
+
 }
 }
 \references{

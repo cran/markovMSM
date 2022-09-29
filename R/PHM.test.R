@@ -57,6 +57,9 @@
 
 PHM.test<-function(data, from, to){
   
+  if (class(data)[1]!="msdata")
+    stop("Argument 'data' must be a mstate object")
+  
   db_long2<-data[data$Tstart!=0,]
   
   trans<-unique(db_long2[db_long2$from==from & db_long2$to==to,'trans'])

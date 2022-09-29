@@ -1,0 +1,93 @@
+---
+title: "markovMSM: An R package for checking the Markov condition in multi-state survival data"
+author: "Gustavo Soutinho and Luis Meira-Machado"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{markovMSM: An R package for checking the Markov condition in multi-state survival data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+The purpose of the present vignette is to demonstrate the capacities of the R package *markovMSM*, as a tool to check the Markov condition. To this end, in the folowing example, we use data from a study with liver
+cirrhosis patients subjected to prednisone treatment (Andersen et al., 1993).
+
+## Application of the markovMSM for testing Markov assumption for more complex multi-state models
+
+The proposed methods can also be used in reversible multi-state models such as those applied
+to the data set of liver cirrhosis patients who were included in a randomized clinical trial at several
+hospitals in Copenhagen between 1962 and 1974. The study aimed to evaluate whether a treatment
+based on prednisone prolongs survival for patients with cirrhosis Andersen et al. (1993). State 1
+corresponds to ‘normal prothrombin level’, State 2 to ‘low (or abnormal) prothrombin level’, and
+State 3 to ‘dead’. The movement of the patients among these three states can be modeled using the
+reversible illness-death model shown in the next figure.
+
+
+Note that the original data set prothr is already in the long format. Thus to obtain the probability 
+values for transitions from State 2, the input command is the following:
+
+
+```{r include=TRUE}
+library(markovMSM)
+
+data("prothr")
+
+set.seed(1234)
+
+res8 <- AUC.test(data = prothr, from=2, to=3, type='global', replicas=2, 
+                 limit=0.90, quantiles=c(.05, .10, .20, .30, 0.40))
+
+round(res8$globalTest,5)
+
+round(res8$localTests,4)
+
+
+```
+Below we report, for the same data set prothr, the results for global and local tests proposed by
+Titman and Putter (2020), which are based on log-rank statistics, for transition 4 (between the states 2
+and 3) and transition 3, (between the states 2 and 1), with times corresponding to the percentiles 5,
+10, 20, 30, and 40 (the default percentile values also used by the AUC global test). The corresponding
+input commands are the following:
+
+
+```{r include=TRUE}
+set.seed(1234)
+
+times <- c(73.5, 117, 223, 392, 681)
+
+res9 <- LR.test(data=prothr, times=times, from = 2, to = 3, replicas = 10)
+
+res9$localTestLR
+
+res9$globalTestLR
+
+set.seed(1234)
+
+res10 <- LR.test(data=prothr, times=times, from = 2, to = 1, replicas = 10)
+
+res10$localTestLR
+
+res10$globalTestLR
+
+
+```
+
+## References
+
+
+* Soutinho G., Meira-Machado L. *Methods for checking the  Markov condition in multi-state survival data*, Computational Statistics, 2021. 
+
+* de Una-alvarez J., Meira-Machado L. *Nonparametric estimation of transition probabilities in the non-Markov illness-death model: A comparative study*, Biometrics, 71(2), 364-375, 2015. 
+
+* Putter H., Spitoni C. *Non-parametric estimation of transition probabilities in non-Markov multi-state models: The landmark Aalen-Johansen estimator*, Statistical Methods in Medical Research, 27, 2081-2092, 2018. 
+
+* Meira-Machado L., Sestelo M. *Estimation in the progressive illness-death model: A nonexhaustive review*, Biometrical Journal, 61(2), 245-263, 2019
+
+* Titman A.C., Putter H. *General tests of the Markov property in multi-state models*, Biostatistics, 2020

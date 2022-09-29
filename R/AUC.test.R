@@ -4,14 +4,12 @@
 #' estimators.
 #' @description This function is used to obtain the local and global tests for 
 #' checking the Markov condition.
-#' @param db_long A data frame in long format containing the subject \code{id};
+#' @param data A data frame in long format containing the subject \code{id};
 #' \code{from} corresponding to the starting state;the receiving state, 
 #' \code{to}; the transition number, \code{trans}; the starting time of the
 #' transition given by \code{Tstart}; the stopping time of the transition, 
 #' \code{Tstop}, and \code{status} for the  status variable, with 1 indicating
 #' an event (transition), 0 a censoring. 
-#' @param db_wide Data frame in wide format in which to interpret time, status,
-#' id or keep, if appropriate.
 #' @param from The starting state of the transition probabilities.
 #' @param to The last receiving state considered for the estimation of the
 #' transition probabilities. All  the probabilities among the first and the
@@ -107,6 +105,7 @@
 #' Meira-Machado L, Sestelo M (2019). Estimation in the progressive illness-death
 #' model: A nonexhaustive review. \emph{Biometrical Journal}, 61(2), 245-263.
 #' @examples
+#' \donttest{
 #' set.seed(1234)
 #' library(markovMSM)
 #' data("colonMSM")
@@ -117,27 +116,46 @@
 #' timesNames = c(NA, "time1","Stime")
 #' status=c(NA, "event1","event")
 #' trans = tmat
-#' \donttest{
 #' db_long<- prepMSM(data=db_wide, trans, timesNames, status)
-#' res<-AUC.test(db_long, db_wide, times=180, from=1, to=3, type='local',
-#'                replicas=100, tmat = tmat)
-#' 
+#' res<-AUC.test(data=db_long, times=180, from=1, to=3, type='local',
+#'                replicas = 20, tmat = tmat)
 #' res$localTest
-#' res2<-AUC.test(db_long, db_wide, times=180, from=2, to=3, type='local',
-#'                replicas=100, tmat = tmat)
+#' res2<-AUC.test(data=db_long, times=180, from=2, to=3, type='local',
+#'                replicas = 20, tmat = tmat)
 #' res2$localTest
 #' 
-#' res3<-AUC.test(db_long, db_wide, from=1, to=3, replicas = 100, tmat=tmat)
+#' res3<-AUC.test(data=db_long, from=1, to=3, replicas = 20, tmat=tmat)
 #' round(res3$globalTest,3)
 #'
-#' res4<-AUC.test(db_long, db_wide, from=2, to=3, type='global', replicas = 100,
+#' res4<-AUC.test(data=db_long, from=2, to=3, type='global', replicas = 20,
 #'              tmat=tmat)
 #' round(res4$globalTest,3)
 #' 
 #' round(res4$localTest,3)
 #' round(res4$localTest,3)
 #' 
-#' data("ebmt4")
+#' #AUC global for the individuals with the treatment "Obs" of covariate `"rx"
+#' #for colonMSM data set
+#' 
+#' set.seed(12345)
+#' 
+#' db_wide.obs<-db_wide[db_wide$rx=='Obs',]
+#' 
+#' db_long.obs <- prepMSM(data = db_wide.obs, trans, timesNames, status)
+#' 
+#' res3a<-AUC.test(data=db_long.obs, times=365, from=1, to=3, 
+#' type='local', replicas= 20, tmat = tmat)
+#' 
+#' res3a$localTest
+#' 
+#' set.seed(12345)
+#' 
+#' res4a<-AUC.test(data=db_long.obs, times=365, from=2, to=3, 
+#' type='local', replicas= 20, tmat = tmat)
+#' 
+#' res4a$localTest
+#' 
+#' #' data("ebmt4")
 #' db_wide <- ebmt4
 #' positions <- list(c(2, 3, 5, 6), c(4, 5, 6), c(4, 5, 6),
 #'                  c(5, 6), c(), c())
@@ -150,21 +168,22 @@
 #' db_long <- prepMSM(data=db_wide, trans, timesNames, status)
 #' db_long[1:10,]
 #'
-#' res5<-AUC.test(db_long, db_wide, from=1, to=5, type='global',
+#' res5<-AUC.test(data=db_long, from=1, to=5, type='global',
 #'                quantiles=c(.05, .10, .20, .30, 0.40),
-#'                tmat = tmat, replicas = 100,
+#'                tmat = tmat, replicas = 5,
 #'                positions=positions, namesStates=state.names,
 #'                timesNames=timesNames, status=status)
 #'                
 #' round(res5$globalTest, 4)
 #' round(res5$localTests,4)
 #' 
-#' res6<-AUC.test(db_long = prothr, db_wide = NULL, from=2, to=3,
-#'                type='global', replicas=100, limit=0.90,
+#' res6<-AUC.test(data = prothr, from=2, to=3,
+#'                type='global', replicas= 5, limit=0.90,
 #'                quantiles=c(.05, .10, .20, .30, 0.40))
 #' round(res6$globalTest,4)
 #'
 #' round(res6$localTests,4)
+#' 
 #' }
 #' @author Gustavo Soutinho and Luis Meira-Machado.
 #'
@@ -176,21 +195,27 @@
 #' @importFrom "mstate" transMat msprep msfit probtrans LMAJ xsect cutLMms msdata2etm trans2Q events
 #' @importFrom "stats" model.matrix model.frame model.response model.offset  
 #' @importFrom "stats" delete.response delete.response
-
 #' @export AUC.test
-
 #' @export prepMSM
 #' @export transMatMSM
 #' @export eventsMSM
 
-
-AUC.test<- function(db_long, db_wide=NULL, from=1, to=3, type='global',
+AUC.test<- function(data, from=1, to=3, type='global',
                        times=NULL, quantiles=c(.05,.10, .20, .30, 0.40),  
                        tmat=NULL, replicas=10, limit=0.90,
                        positions=list(c(2, 3), c(3), c()),
                        namesStates =  c("Alive", "Rec",  "Death"),
                        timesNames = c(NA, "time1","Stime"),
                        status=c(NA, "event1","event")){
+  
+  
+  db_long<-data
+  
+  if (class(db_long)[1]!="msdata")
+    stop("Argument 'data' must be a mstate object")
+  
+  
+  db_wide<-NULL
   
   if(type=='global'){
     
@@ -316,8 +341,8 @@ AUC.test<- function(db_long, db_wide=NULL, from=1, to=3, type='global',
       
       #h<-1
       
-      print(h)
-      
+      #print(h)  - estava este
+  
       #for(i3 in 1:length(colnames(db_wide))){
       
       #i3<-1
@@ -386,24 +411,131 @@ AUC.test<- function(db_long, db_wide=NULL, from=1, to=3, type='global',
           
         }#fim de casos em que length(names) difere de 3
         
-      }else{#caso db_wide=NULL
+      }else{#......................caso db_wide=NULL
         
         
         if(is.null(times)){
           
-          #head(db_long)
+                        #head(db_long)
+                        
+                        #tempQ<-unique(db_long$Tstop)
+                        
+                        #summary(tempQ)
           
-          tempQ<-unique(db_long$Tstop)
           
-          #summary(tempQ)
+          if(length(namesStates)==3){
+            
+            
+            if(nrow(db_long)==2152){
+              
+              
+              #head(db_long)
+              
+              tempQ<-unique(db_long$Tstop)
+              
+              #summary(tempQ)
+              
+              s<-as.numeric(quantile(tempQ, quantiles))[h]
+              
+              tmat <- attr(db_long, "trans")
+              
+              s_quant<-as.numeric(quantile(tempQ, quantiles))
+               
+            }else{
+              
+              values<-rep(0,length(unique(db_long$id)))
+              
+              for(i3 in 1:length(unique(db_long$id))){
+                
+                #i3<-1
+                
+                values[i3]<-min(unique(db_long[db_long$id==i3,'Tstop']))
+                
+              }
+              
+              
+              tempQ<-as.numeric(values)
+              
+              #tempQ==as.numeric(db_wide[, timeToQuantiles])
+              
+              #tempQ<-unique(db_long$Tstop)
+              
+              min<-min(as.numeric(tempQ))
+              
+              val0.75<-as.numeric(quantile(tempQ, 0.75))
+              
+              s<-as.numeric(quantile(tempQ, quantiles))[h]
+              
+              tmat <- attr(db_long, "trans")
+              
+              s_quant<-as.numeric(quantile(tempQ, quantiles))
+              
+            }
+            
+        }else{#diferente de illness death model
+            
+            
+          #from=1
           
-          s<-as.numeric(quantile(tempQ, quantiles))[h]
+          if(i==1){
+            
+            values<-rep(0,length(unique(db_long$id)))
+            
+            for(i3 in 1:length(unique(db_long$id))){
+              
+              #i3<-2
+              
+              #db_long[db_long$id==i3,]
+              
+              #db_long[db_long$id==i3 ,'Tstop']
+              
+              values[i3]<-min(unique(db_long[db_long$id==i3 ,'Tstop']))
+              
+            }
+            
+            valToQuantiles<-values
+            
+            valToQuantiles<-valToQuantiles[valToQuantiles!=0] 
+            
+            s<-as.numeric(quantile(valToQuantiles, quantiles))[h]
+            
+            s_quant<-as.numeric(quantile(valToQuantiles, quantiles))
+            
+            
+          }else{#from !=1 ....
+            
+           
+            db2<-db_long[db_long$from==i,]
+            ids2<-unique(db2$id)
+            
+            values2<-rep(0,length(ids2))
+            
+            for(i4 in 1:length(ids2)){
+              
+              #i4<-3
+              
+              #db_long[db_long$id==ids2[i4],]
+              
+              #db_long[db_long$id==ids2[i4] & db_long$from==i,'Tstop']
+              
+              values2[i4]<-min(unique(db_long[db_long$id==ids2[i4] & db_long$from==i,'Tstop']))
+            }
+            
+            valToQuantiles<-values2
+            
+            valToQuantiles<-valToQuantiles[valToQuantiles!=0] 
+            
+            s<-as.numeric(quantile(valToQuantiles, quantiles))[h]
+            
+            s_quant<-as.numeric(quantile(valToQuantiles, quantiles))
+            
+          }
+            
+
+          } #fim diferente de illness death model (3 estados)
           
-          tmat <- attr(db_long, "trans")
-          
-          s_quant<-as.numeric(quantile(tempQ, quantiles))
-          
-        }else{
+ 
+        }else{#valores em concreto quando nao se conhece WIDE
           
           s<-as.numeric(times)[h]
           s_quant<-as.numeric(times)
@@ -416,11 +548,15 @@ AUC.test<- function(db_long, db_wide=NULL, from=1, to=3, type='global',
       
       #s<-c(10, 30, 100, 200, 300, 650)[h]  #10 erro
       
-      c0 <- coxph(Surv(Tstart, Tstop, status) ~ strata(trans), data = db_long)
+      cat("Time  =", s,"\n")
       
-      msf0 <- msfit(object = c0, vartype = "greenwood", trans = tmat)
+      c0 <-  suppressWarnings(coxph(Surv(Tstart, Tstop, status) ~ strata(trans),
+                                    data = db_long))
       
-      resAJ<-probtrans(msf0, predt=s)
+      msf0 <-  suppressWarnings(msfit(object = c0, vartype = "greenwood", 
+                                      trans = tmat))
+      
+      resAJ<- suppressWarnings(probtrans(msf0, predt=s))
       
       #resAJ[[i]]
       
@@ -432,7 +568,7 @@ AUC.test<- function(db_long, db_wide=NULL, from=1, to=3, type='global',
       
       #resAJ[[i]][1:10,]
       
-      LMpt0 <- LMAJ2(db_long, s=s, from=i)
+      LMpt0 <-  suppressWarnings(LMAJ2(db_long, s=s, from=i))
       
       #LMpt0[200:250,]
       
@@ -498,7 +634,7 @@ AUC.test<- function(db_long, db_wide=NULL, from=1, to=3, type='global',
         
         #k<-1
         
-        cat("Monte Carlo sample  =", k,"\n")
+        #cat("Monte Carlo sample  =", k,"\n")
         
         #head(db_wide)
         
@@ -553,12 +689,13 @@ AUC.test<- function(db_long, db_wide=NULL, from=1, to=3, type='global',
           #db_long2[db_long2$id==3,]
         }
         
-        c0 <- coxph(Surv(Tstart, Tstop, status) ~ strata(trans), data = db_long2)
+        c0 <-  suppressWarnings(coxph(Surv(Tstart, Tstop, status) ~ strata(trans), 
+                                      data = db_long2))
         
         
-        msf0 <- msfit(object = c0, vartype = "greenwood", trans = tmat)
+        msf0 <-  suppressWarnings(msfit(object = c0, vartype = "greenwood", trans = tmat))
         
-        resAJ<-probtrans(msf0, predt=s)
+        resAJ<- suppressWarnings(probtrans(msf0, predt=s))
         
         tempos <- resAJ[[1]][,1]
         
@@ -570,9 +707,9 @@ AUC.test<- function(db_long, db_wide=NULL, from=1, to=3, type='global',
         #
         
         msdata<-db_long2
-        xss <- xsect(msdata, s)
+        xss <- suppressWarnings(xsect(msdata, s))
         infrom <- xss$id[xss$state %in% from]
-        msdatas <- cutLMms(msdata, LM = s)
+        msdatas <- suppressWarnings(cutLMms(msdata, LM = s))
         msdatasfrom <- msdatas[msdatas$id %in% infrom, ]
         
         #print(nrow(msdatasfrom))
@@ -586,7 +723,7 @@ AUC.test<- function(db_long, db_wide=NULL, from=1, to=3, type='global',
         }else{
           
           
-          LMpt0 <- LMAJ2(db_long2, s=s, from=i)
+          LMpt0 <- suppressWarnings(LMAJ2(db_long2, s=s, from=i))
           
           #tempos[tempos %in% LMpt0$time] == LMpt0$time[LMpt0$time %in% tempos]
           
@@ -901,7 +1038,10 @@ AUC.test<- function(db_long, db_wide=NULL, from=1, to=3, type='global',
     
     res$call <- match.call()
     
-    return(res)
+    #return(res)
+    options(warn=-1)
+    suppressWarnings(res)
+    return(invisible(res))
     
   }else{
     
@@ -944,15 +1084,17 @@ AUC.test<- function(db_long, db_wide=NULL, from=1, to=3, type='global',
       
       #h<-2
       
-      print(h)
+      #print(h)
       
       s<-times[h]
       
-      c0 <- coxph(Surv(Tstart, Tstop, status) ~ strata(trans), data = db_long)
+      cat("Time =", s,"\n")
       
-      msf0 <- msfit(object = c0, vartype = "greenwood", trans = tmat)
+      c0 <-  suppressWarnings(coxph(Surv(Tstart, Tstop, status) ~ strata(trans), data = db_long))
       
-      resAJ<-probtrans(msf0, predt=s)
+      msf0 <-  suppressWarnings(msfit(object = c0, vartype = "greenwood", trans = tmat))
+      
+      resAJ<- suppressWarnings(probtrans(msf0, predt=s))
       
       tempos <- resAJ[[1]][,1]
       
@@ -966,7 +1108,7 @@ AUC.test<- function(db_long, db_wide=NULL, from=1, to=3, type='global',
       
       #resAJ[[i]][1:10,1:8]
       
-      LMpt0 <- LMAJ2(db_long, s=s, from=i)
+      LMpt0 <- suppressWarnings(LMAJ2(db_long, s=s, from=i))
       
       #LMpt0[1:40,1:8]
       
@@ -1039,7 +1181,7 @@ AUC.test<- function(db_long, db_wide=NULL, from=1, to=3, type='global',
         
         #k<-1
         
-        cat("Monte Carlo sample  =", k,"\n")
+        #cat("Monte Carlo sample  =", k,"\n")
         
         #head(db_wide)
         
@@ -1096,17 +1238,17 @@ AUC.test<- function(db_long, db_wide=NULL, from=1, to=3, type='global',
         
         
         
-        c0 <- coxph(Surv(Tstart, Tstop, status) ~ strata(trans), data = db_long2)
+        c0 <-  suppressWarnings(coxph(Surv(Tstart, Tstop, status) ~ strata(trans), data = db_long2))
         
-        msf0 <- msfit(object = c0, vartype = "greenwood", trans = tmat)
+        msf0 <-  suppressWarnings(msfit(object = c0, vartype = "greenwood", trans = tmat))
         
-        resAJ<-probtrans(msf0, predt=s)
+        resAJ<- suppressWarnings(probtrans(msf0, predt=s))
         
         tempos <- resAJ[[1]][,1]
         t.limit <- quantile(tempos, 0.90)
         tempos <- tempos[tempos < t.limit]
         
-        LMpt0 <- LMAJ2(db_long2, s=s, from=i)
+        LMpt0 <- suppressWarnings(LMAJ2(db_long2, s=s, from=i))
         
         #tempos[tempos %in% LMpt0$time] == LMpt0$time[LMpt0$time %in% tempos]
         
@@ -1375,7 +1517,9 @@ AUC.test<- function(db_long, db_wide=NULL, from=1, to=3, type='global',
     
     res$call <- match.call()
     
-    return(res)
-    
+    #return(res)
+    options(warn=-1)
+    suppressWarnings(res)
+    return(invisible(res))
   }
 }

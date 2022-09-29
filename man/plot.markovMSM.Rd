@@ -40,13 +40,13 @@ time of the transition probabilities for each transition.
 library(markovMSM)
 data(prothr)
 \donttest{
-res<-AUC.test(db_long=prothr, times=30, from=1, to=3, type='local', 
+res<-AUC.test(data=prothr, times=30, from=1, to=3, type='local', 
 replicas=10)
 
 plot(res, to=3, axis.scale=c(-0.25,.25), difP=TRUE)
 plot(res, to=2, axis.scale=c(0,.25), difP=FALSE)
 
-res2<-AUC.test(db_long=prothr, db_wide = NULL, from=1, to=3, 
+res2<-AUC.test(data=prothr, from=1, to=3, 
 type='global', replicas=10, limit=0.90, quantiles=c(.05, .10, .20, .30, 0.40))
 plot(res2, quantileOrder=3, 2, axis.scale=c(-0.05,.15))
 }
