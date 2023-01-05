@@ -12,7 +12,7 @@
 
 <meta name="author" content="Gustavo Soutinho and Luis Meira-Machado" />
 
-<meta name="date" content="2022-09-29" />
+<meta name="date" content="2023-01-02" />
 
 <title>markovMSM: An R package for checking the Markov condition in multi-state survival data</title>
 
@@ -342,7 +342,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <h1 class="title toc-ignore">markovMSM: An R package for checking the
 Markov condition in multi-state survival data</h1>
 <h4 class="author">Gustavo Soutinho and Luis Meira-Machado</h4>
-<h4 class="date">2022-09-29</h4>
+<h4 class="date">2023-01-02</h4>
 
 
 
@@ -375,11 +375,11 @@ input command is the following:</p>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>res8 <span class="ot">&lt;-</span> <span class="fu">AUC.test</span>(<span class="at">data =</span> prothr, <span class="at">from=</span><span class="dv">2</span>, <span class="at">to=</span><span class="dv">3</span>, <span class="at">type=</span><span class="st">&#39;global&#39;</span>, <span class="at">replicas=</span><span class="dv">2</span>, </span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>                 <span class="at">limit=</span><span class="fl">0.90</span>, <span class="at">quantiles=</span><span class="fu">c</span>(.<span class="dv">05</span>, .<span class="dv">10</span>, .<span class="dv">20</span>, .<span class="dv">30</span>, <span class="fl">0.40</span>))</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Time  = 73.5 </span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Time  = 117 </span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Time  = 223 </span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Time  = 392 </span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Time  = 681</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Computation involving the first (of five) percentile times: done! || Execution time since the beginning: 0.05954918 mins</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>Computation involving the <span class="fu">second</span> (of five) percentile times<span class="sc">:</span> done<span class="sc">!</span> <span class="er">||</span> Execution time since the beginning<span class="sc">:</span> <span class="fl">0.1504327</span> mins</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>Computation involving the <span class="fu">third</span> (of five) percentile times<span class="sc">:</span> done<span class="sc">!</span> <span class="er">||</span> Execution time since the beginning<span class="sc">:</span> <span class="fl">0.2268116</span> mins</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>Computation involving the <span class="fu">fourth</span> (of five) percentile times<span class="sc">:</span> done<span class="sc">!</span> <span class="er">||</span> Execution time since the beginning<span class="sc">:</span> <span class="fl">0.2962775</span> mins</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>Computation involving the <span class="fu">fifth</span> (of five) percentile times<span class="sc">:</span> done<span class="sc">!</span> <span class="er">||</span> Execution time since the beginning<span class="sc">:</span> <span class="fl">0.3613444</span> mins</span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(res8<span class="sc">$</span>globalTest,<span class="dv">5</span>)</span>
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   2-&gt;1 2-&gt;2 2-&gt;3</span></span>

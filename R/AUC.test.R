@@ -191,7 +191,7 @@
 #' @importFrom "survival" coxph Surv survfit strata untangle.specials
 #' @importFrom "graphics" legend abline axis legend lines matplot par plot polygon
 #' @importFrom "stats" pchisq pnorm quantile sd na.omit terms approxfun as.formula rnorm rpois weighted.mean
-#' @importFrom "utils" capture.output
+#' @importFrom "utils" capture.output flush.console
 #' @importFrom "mstate" transMat msprep msfit probtrans LMAJ xsect cutLMms msdata2etm trans2Q events
 #' @importFrom "stats" model.matrix model.frame model.response model.offset  
 #' @importFrom "stats" delete.response delete.response
@@ -201,12 +201,12 @@
 #' @export eventsMSM
 
 AUC.test<- function(data, from=1, to=3, type='global',
-                       times=NULL, quantiles=c(.05,.10, .20, .30, 0.40),  
-                       tmat=NULL, replicas=10, limit=0.90,
-                       positions=list(c(2, 3), c(3), c()),
-                       namesStates =  c("Alive", "Rec",  "Death"),
-                       timesNames = c(NA, "time1","Stime"),
-                       status=c(NA, "event1","event")){
+                    times=NULL, quantiles=c(.05,.10, .20, .30, 0.40),  
+                    tmat=NULL, replicas=10, limit=0.90,
+                    positions=list(c(2, 3), c(3), c()),
+                    namesStates =  c("Alive", "Rec",  "Death"),
+                    timesNames = c(NA, "time1","Stime"),
+                    status=c(NA, "event1","event")){
   
   
   db_long<-data
@@ -337,12 +337,14 @@ AUC.test<- function(data, from=1, to=3, type='global',
       
       times.to.test<-length(times)
     
+    start.time <- Sys.time() #marcacao do tempo inicial de processamento
+    
     for(h in 1:times.to.test){
       
       #h<-1
       
       #print(h)  - estava este
-  
+      
       #for(i3 in 1:length(colnames(db_wide))){
       
       #i3<-1
@@ -416,11 +418,11 @@ AUC.test<- function(data, from=1, to=3, type='global',
         
         if(is.null(times)){
           
-                        #head(db_long)
-                        
-                        #tempQ<-unique(db_long$Tstop)
-                        
-                        #summary(tempQ)
+          #head(db_long)
+          
+          #tempQ<-unique(db_long$Tstop)
+          
+          #summary(tempQ)
           
           
           if(length(namesStates)==3){
@@ -440,7 +442,7 @@ AUC.test<- function(data, from=1, to=3, type='global',
               tmat <- attr(db_long, "trans")
               
               s_quant<-as.numeric(quantile(tempQ, quantiles))
-               
+              
             }else{
               
               values<-rep(0,length(unique(db_long$id)))
@@ -472,69 +474,69 @@ AUC.test<- function(data, from=1, to=3, type='global',
               
             }
             
-        }else{#diferente de illness death model
+          }else{#diferente de illness death model
             
             
-          #from=1
-          
-          if(i==1){
+            #from=1
             
-            values<-rep(0,length(unique(db_long$id)))
-            
-            for(i3 in 1:length(unique(db_long$id))){
+            if(i==1){
               
-              #i3<-2
+              values<-rep(0,length(unique(db_long$id)))
               
-              #db_long[db_long$id==i3,]
+              for(i3 in 1:length(unique(db_long$id))){
+                
+                #i3<-2
+                
+                #db_long[db_long$id==i3,]
+                
+                #db_long[db_long$id==i3 ,'Tstop']
+                
+                values[i3]<-min(unique(db_long[db_long$id==i3 ,'Tstop']))
+                
+              }
               
-              #db_long[db_long$id==i3 ,'Tstop']
+              valToQuantiles<-values
               
-              values[i3]<-min(unique(db_long[db_long$id==i3 ,'Tstop']))
+              valToQuantiles<-valToQuantiles[valToQuantiles!=0] 
+              
+              s<-as.numeric(quantile(valToQuantiles, quantiles))[h]
+              
+              s_quant<-as.numeric(quantile(valToQuantiles, quantiles))
+              
+              
+            }else{#from !=1 ....
+              
+              
+              db2<-db_long[db_long$from==i,]
+              ids2<-unique(db2$id)
+              
+              values2<-rep(0,length(ids2))
+              
+              for(i4 in 1:length(ids2)){
+                
+                #i4<-3
+                
+                #db_long[db_long$id==ids2[i4],]
+                
+                #db_long[db_long$id==ids2[i4] & db_long$from==i,'Tstop']
+                
+                values2[i4]<-min(unique(db_long[db_long$id==ids2[i4] & db_long$from==i,'Tstop']))
+              }
+              
+              valToQuantiles<-values2
+              
+              valToQuantiles<-valToQuantiles[valToQuantiles!=0] 
+              
+              s<-as.numeric(quantile(valToQuantiles, quantiles))[h]
+              
+              s_quant<-as.numeric(quantile(valToQuantiles, quantiles))
               
             }
             
-            valToQuantiles<-values
             
-            valToQuantiles<-valToQuantiles[valToQuantiles!=0] 
-            
-            s<-as.numeric(quantile(valToQuantiles, quantiles))[h]
-            
-            s_quant<-as.numeric(quantile(valToQuantiles, quantiles))
-            
-            
-          }else{#from !=1 ....
-            
-           
-            db2<-db_long[db_long$from==i,]
-            ids2<-unique(db2$id)
-            
-            values2<-rep(0,length(ids2))
-            
-            for(i4 in 1:length(ids2)){
-              
-              #i4<-3
-              
-              #db_long[db_long$id==ids2[i4],]
-              
-              #db_long[db_long$id==ids2[i4] & db_long$from==i,'Tstop']
-              
-              values2[i4]<-min(unique(db_long[db_long$id==ids2[i4] & db_long$from==i,'Tstop']))
-            }
-            
-            valToQuantiles<-values2
-            
-            valToQuantiles<-valToQuantiles[valToQuantiles!=0] 
-            
-            s<-as.numeric(quantile(valToQuantiles, quantiles))[h]
-            
-            s_quant<-as.numeric(quantile(valToQuantiles, quantiles))
-            
-          }
-            
-
           } #fim diferente de illness death model (3 estados)
           
- 
+          
         }else{#valores em concreto quando nao se conhece WIDE
           
           s<-as.numeric(times)[h]
@@ -548,7 +550,7 @@ AUC.test<- function(data, from=1, to=3, type='global',
       
       #s<-c(10, 30, 100, 200, 300, 650)[h]  #10 erro
       
-      cat("Time  =", s,"\n")
+      #cat("Time  =", s,"\n")   
       
       c0 <-  suppressWarnings(coxph(Surv(Tstart, Tstop, status) ~ strata(trans),
                                     data = db_long))
@@ -902,7 +904,25 @@ AUC.test<- function(data, from=1, to=3, type='global',
       
       ET.qs2All<-rbind(ET.qs2All,cbind(as.data.frame(ET.qs2), rep(s,length(len))))
       
+      
+      ord1<-c('first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth', 
+              'eleventh', 'twelfth')
+      
+      
+      ord2<-c('one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 
+              'eleven', 'twelve')
+      
+      
+      cat("Computation involving the ", ord1[h], ' (of ', ord2[times.to.test],') percentile times: done! || ',
+          "Execution time since the beginning: ",  format(difftime(Sys.time(), start.time, units="mins")) , '\r', sep='')
+      
+      flush.console()
+      
+      Sys.sleep(2)
+      
+      
     }#fim times
+    
     
     p.value.f<-p.valueAll
     
@@ -994,7 +1014,7 @@ AUC.test<- function(data, from=1, to=3, type='global',
       minAllf<-minAll
     }
     
-
+    
     nomes<-rep("s",length(names(p.value.f2)))
     
     names(p.value.f2)
@@ -1044,7 +1064,7 @@ AUC.test<- function(data, from=1, to=3, type='global',
     return(invisible(res))
     
   }else{
-    
+    #local
     i<-from
     
     #i<-1
@@ -1489,7 +1509,7 @@ AUC.test<- function(data, from=1, to=3, type='global',
     
     names(ET.qs2All)[2:(length(3:ncol(DIF))+1)]<-names(DIF)[3:ncol(DIF)]
     
-   
+    
     nomes<-rep("s",length(names(p.valueAll.f)))
     
     names(p.valueAll.f)
@@ -1499,11 +1519,11 @@ AUC.test<- function(data, from=1, to=3, type='global',
       #i5<-2
       
       #nchar(names(p.valueAll.f)[i5])
-    
+      
       nomes[i5]<-paste(from,'->',substr(names(p.valueAll.f)[i5], 7, nchar(names(p.valueAll.f)[i5])),sep='')
+      
+    }
     
-      }
-  
     
     names(p.valueAll.f)<-nomes
     
