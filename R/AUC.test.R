@@ -187,7 +187,6 @@
 #' }
 #' @author Gustavo Soutinho and Luis Meira-Machado.
 #'
-#' @importFrom "survidm" tprob markov.test 
 #' @importFrom "survival" coxph Surv survfit strata untangle.specials
 #' @importFrom "graphics" legend abline axis legend lines matplot par plot polygon
 #' @importFrom "stats" pchisq pnorm quantile sd na.omit terms approxfun as.formula rnorm rpois weighted.mean
@@ -199,6 +198,8 @@
 #' @export prepMSM
 #' @export transMatMSM
 #' @export eventsMSM
+
+
 
 AUC.test<- function(data, from=1, to=3, type='global',
                     times=NULL, quantiles=c(.05,.10, .20, .30, 0.40),  
@@ -337,7 +338,11 @@ AUC.test<- function(data, from=1, to=3, type='global',
       
       times.to.test<-length(times)
     
-    start.time <- Sys.time() #marcacao do tempo inicial de processamento
+    #start.time <- Sys.time() #marcacao do tempo inicial de processamento
+    
+    cat("This method is based on the calculation of 5 percentile times and can lead to a high execution time. 
+          Partial execution times will be provided during execution.", '\n')
+    
     
     for(h in 1:times.to.test){
       
@@ -632,7 +637,77 @@ AUC.test<- function(data, from=1, to=3, type='global',
       
       ET_boot<-NULL
       
+      start.time <- Sys.time() #marcacao do tempo inicial de processamento
+      
       for(k in 1:M){
+        
+        if(k==6){
+          
+          
+          ord1<-c('first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth', 
+                  'eleventh', 'twelfth')
+          
+          
+          ord2<-c('one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 
+                  'eleven', 'twelve')
+          
+          #M<-100
+          
+          #(as.numeric(difftime(Sys.time(), start.time))/5*M)/60
+          
+          if(h==1 | h==2){
+            
+            if(nrow(db_long)==15512){
+              
+              cat("Expected computation time in minutes for ", ord1[h], ' (of ', ord2[times.to.test],') percentiles: ',
+                  ((as.numeric(difftime(Sys.time(), start.time))*1.5*M)/5)/60, '\r', sep='')
+              
+              
+            }else{
+              
+              cat("Expected computation time in minutes for ", ord1[h], ' (of ', ord2[times.to.test],') percentiles: ',
+                  ((as.numeric(difftime(Sys.time(), start.time))*2.5*M)/5)/60, '\r', sep='')
+              
+            }
+            
+          }else{
+            
+            if(h==3){
+              
+              
+              if(nrow(db_long)==15512){
+                
+                cat("Expected computation time in minutes for ", ord1[h], ' (of ', ord2[times.to.test],') percentiles: ',
+                    ((as.numeric(difftime(Sys.time(), start.time))*M)/5)/60, '\r', sep='')
+                
+                
+              }else{
+                
+                cat("Expected computation time in minutes for ", ord1[h], ' (of ', ord2[times.to.test],') percentiles: ',
+                    ((as.numeric(difftime(Sys.time(), start.time))*2.1*M)/5)/60, '\r', sep='')
+              }
+              
+              
+              
+            }else{#nao ser h=3
+              
+              
+              if(nrow(db_long)==15512){
+                
+                cat("Expected computation time in minutes for ", ord1[h], ' (of ', ord2[times.to.test],') percentiles: ',
+                    ((as.numeric(difftime(Sys.time(), start.time))*M)/5)/60, '\r', sep='')
+                
+                
+              }else{
+                
+                cat("Expected computation time in minutes for ", ord1[h], ' (of ', ord2[times.to.test],') percentiles: ',
+                    ((as.numeric(difftime(Sys.time(), start.time))*1.3*M)/5)/60, '\r', sep='')
+              }
+              
+            }#final de nao ser h=3
+            
+          } #final de ser 3 ou nao ser
+        }
         
         #k<-1
         
@@ -905,20 +980,6 @@ AUC.test<- function(data, from=1, to=3, type='global',
       ET.qs2All<-rbind(ET.qs2All,cbind(as.data.frame(ET.qs2), rep(s,length(len))))
       
       
-      ord1<-c('first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth', 
-              'eleventh', 'twelfth')
-      
-      
-      ord2<-c('one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 
-              'eleven', 'twelve')
-      
-      
-      cat("Computation involving the ", ord1[h], ' (of ', ord2[times.to.test],') percentile times: done! || ',
-          "Execution time since the beginning: ",  format(difftime(Sys.time(), start.time, units="mins")) , '\r', sep='')
-      
-      flush.console()
-      
-      Sys.sleep(2)
       
       
     }#fim times
@@ -1064,7 +1125,9 @@ AUC.test<- function(data, from=1, to=3, type='global',
     return(invisible(res))
     
   }else{
+    
     #local
+    
     i<-from
     
     #i<-1
@@ -1100,6 +1163,9 @@ AUC.test<- function(data, from=1, to=3, type='global',
       tmat <- attr(db_long, "trans")
     
     
+    cat("This method may require high execution time. 
+         Partial execution times will be provided during execution.", '\n')
+    
     for(h in 1:length(times)){
       
       #h<-2
@@ -1108,7 +1174,7 @@ AUC.test<- function(data, from=1, to=3, type='global',
       
       s<-times[h]
       
-      cat("Time =", s,"\n")
+      #cat("Time =", s,"\n")
       
       c0 <-  suppressWarnings(coxph(Surv(Tstart, Tstop, status) ~ strata(trans), data = db_long))
       
@@ -1197,9 +1263,18 @@ AUC.test<- function(data, from=1, to=3, type='global',
       
       ET_boot<-NULL
       
+      start.time <- Sys.time() #marcacao do tempo inicial de processamento
+      
       for(k in 1:M){
         
         #k<-1
+        
+        
+        if(k==6){
+          
+          cat("Expected computation time in minutes for ", s , ": " , ((as.numeric(difftime(Sys.time(), start.time))*2.3*M)/5)/60, '\r', sep='')
+          
+        }
         
         #cat("Monte Carlo sample  =", k,"\n")
         

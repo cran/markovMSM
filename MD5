@@ -1,6 +1,6 @@
-8362f4e07e1dd4cf619ae29b26a257d5 *DESCRIPTION
-cfd944506ab6d1e5b1ddf4f7fde2edd6 *NAMESPACE
-3b6742003658d13153455f080be71c31 *R/AUC.test.R
+b1973ecd14631b798bd8e6c8f1a5b682 *DESCRIPTION
+8d05acc304a45740498613e4f7e66b0b *NAMESPACE
+80cd210917eb5a22eb285e5bc4146c71 *R/AUC.test.R
 0d23f86da905b6912832b2c42f0f0171 *R/LMAJ2.R
 f3b99e1ee1bc4ef4c5ceba85f0d065ce *R/LR.test.R
 383019100a53d187ad99368494017ecb *R/MarkovTest.R
@@ -21,10 +21,10 @@ c35121e6d753f3fe60e0251a41d1c683 *build/vignette.rds
 44fba325c339e382f912a8bb117cdfab *data/colonMSM.rda
 6a0a03f249e8a3a24ba7d5e5149b279a *data/ebmt4.RData
 99614ac11305b572b6bf74ca21127a93 *data/prothr.RData
-143b00f930cbda12494026c7c804e177 *inst/NEWS.Rd
+1250e522b2d041e9be3e4ba4b9f0c88a *inst/NEWS.Rd
 affe70dc1762e1d94837f59a41dddaa5 *inst/doc/Vignette-markovMSM.R
 733cba8154ae0b00432534f4db989d68 *inst/doc/Vignette-markovMSM.Rmd
-acc57374a64b4e0890455f91cf9ee717 *inst/doc/Vignette-markovMSM.html
+8ffb01804a11180cd5794033936c0ed4 *inst/doc/Vignette-markovMSM.html
 0bb1b136b07fe6d8b2485fe59ce36499 *man/AUC.test.Rd
 74713d89b8ee0883d0c967e84258808c *man/LR.test.Rd
 3ab791235139742bfb5608e742938f4b *man/PHM.test.Rd
